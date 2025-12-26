@@ -1,34 +1,29 @@
 import { auth, db } from "./firebase.js";
 import {
-  addDoc, collection
+  doc, getDoc, addDoc, collection
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-submit.onclick = async () => {
-  if (!auth.currentUser) return;
+auth.onAuthStateChanged(async user => {
+  if (!user) return;
 
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  const u = userSnap.data();
+
+  if (!u.approved) {
+    document.body.innerHTML = "<p>You are not yet approved to write.</p>";
+    return;
+  }
+});
+
+submit.onclick = async () => {
   await addDoc(collection(db, "posts"), {
     title: title.value,
     body: body.value,
-    location: location.value,
     authorName: "Anonymous",
+    location: location.value,
     createdAt: Date.now(),
     published: true
   });
 
-  msg.innerText = "Published successfully.";
+  msg.innerText = "Your story is live.";
 };
-
-import {
-  getDocs, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const container = document.getElementById("posts");
-if (container) {
-  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-  const snap = await getDocs(q);
-
-  snap.forEach(doc => {
-    const p = doc.data();
-    container.innerHTML += `<h3>${p.title}</h3><p>${p.body.slice(0,120)}...</p>`;
-  });
-}
