@@ -17,4 +17,3 @@ submit.onclick = async () => {
 
   msg.innerText = "Published successfully.";
 };
-
