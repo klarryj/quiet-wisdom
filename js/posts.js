@@ -17,3 +17,18 @@ submit.onclick = async () => {
 
   msg.innerText = "Published successfully.";
 };
+
+import {
+  getDocs, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const container = document.getElementById("posts");
+if (container) {
+  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+
+  snap.forEach(doc => {
+    const p = doc.data();
+    container.innerHTML += `<h3>${p.title}</h3><p>${p.body.slice(0,120)}...</p>`;
+  });
+}
